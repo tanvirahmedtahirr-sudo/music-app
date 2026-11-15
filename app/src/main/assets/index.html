@@ -1,55 +1,87 @@
 <!doctype html><html lang="bn"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>My Music App</title><style>
-body{font-family:sans-serif;margin:0;background:#1a1025;color:#fff;padding-bottom:70px}
+body{font-family:sans-serif;margin:0;background:#1a1025;color:#fff;padding-bottom:120px;transition:background .3s}
+body.light{background:#f5f0fb;color:#2a1b3d}
+body.light .t,body.light .s-title{color:#2a1b3d}
 header{background:linear-gradient(135deg,#ff2d78,#7b2dff);padding:18px;text-align:center;font-weight:bold;font-size:20px}
 .bar{display:flex;gap:8px;padding:12px}
 input{flex:1;padding:12px;border-radius:10px;border:none;background:#2a1b3d;color:#fff;font-size:16px}
+body.light input{background:#fff;color:#2a1b3d;border:1px solid #ddd}
 button{padding:12px 16px;border:none;border-radius:10px;background:#ff2d78;color:#fff;font-weight:bold}
 .tabs{display:flex;gap:8px;padding:0 12px}
 .tabs button{background:#2a1b3d;flex:1}
-.tabs button.on{background:#7b2dff}
+body.light .tabs button{background:#e5dbf5;color:#2a1b3d}
+.tabs button.on{background:#7b2dff;color:#fff}
 .item{display:flex;align-items:center;gap:10px;background:#241639;margin:8px 12px;padding:10px;border-radius:12px}
+body.light .item{background:#fff}
 .item img{width:52px;height:52px;border-radius:8px;flex-shrink:0}
 .meta{flex:1;min-width:0}
-.t{font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t{font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
+body.light .t{color:#2a1b3d}
 .a{color:#b9a6d9;font-size:13px}
-.small{padding:8px 10px;background:#3d2450;border-radius:8px;margin-top:6px}
+body.light .a{color:#6a5a8a}
+.small{padding:8px 10px;background:#3d2450;border-radius:8px;margin-top:6px;color:#fff}
+body.light .small{background:#efe6fa;color:#2a1b3d}
+.hist{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 4px}
+.chip{padding:6px 12px;border-radius:20px;background:#2a1b3d;font-size:12px;border:none}
+body.light .chip{background:#e5dbf5;color:#2a1b3d}
+.chip.on{background:#7b2dff;color:#fff}
 .err{margin:16px;padding:14px;border-radius:10px;background:#4d1226;color:#ffb3c1;font-size:13px;word-break:break-all}
-audio{width:100%;position:fixed;bottom:0;left:0}
+.hrow{display:flex;gap:10px;padding:0 12px 8px}
+.hrow button{flex:1;padding:10px;font-size:13px;background:#2a1b3d}
+body.light .hrow button{background:#e5dbf5;color:#2a1b3d}
+audio{width:100%;position:fixed;bottom:52px;left:0}
+.np{position:fixed;bottom:0;left:0;right:0;background:#0f0819;padding:8px 14px;display:flex;align-items:center;gap:10px;border-top:1px solid #2a1b3d}
+.np .s-title{flex:1;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
+.np button{padding:8px 14px;font-size:16px;background:#ff2d78}
 </style></head><body>
-<header>🎵 My Music App <span style="font-size:11px">v3</span></header>
+<header>🎵 My Music App <span style="font-size:11px">v4</span> <span style="float:right;cursor:pointer" onclick="theme()" id="th">🌙</span></header>
 <div class="bar"><input id="q" placeholder="গান সার্চ করুন..." onkeydown="if(event.key=='Enter')go()">
 <button onclick="go()">Search</button></div>
+<div class="hist" id="hist"></div>
 <div class="tabs"><button id="tb0" class="on" onclick="tab(0)">🔍 Search</button><button id="tb1" onclick="tab(1)">❤️ Fav</button><button id="tb2" onclick="tab(2)">🇧🇩 Bangla</button></div>
 <div id="res"></div>
 <audio id="aud" controls></audio>
+<div class="np"><span class="s-title" id="nowp">কিছু বাজছে না</span><button onclick="nextSong()">⏭</button></div>
 <script>
-var view=0,last=[],lists=['s','fav','bng'],aud=document.getElementById('aud');
+var view=0,last=[],lists=['s','fav','bng'],aud=document.getElementById('aud'),nowIdx=-1;
+var light=localStorage.getItem('theme')=='l';
+function theme(){light=!light;localStorage.setItem('theme',light?'l':'d');apply()}
+function apply(){document.body.className=light?'light':'';document.getElementById('th').textContent=light?'☀️':'🌙'}
+apply();
 function ls(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return[]}}
 function sv(k,v){localStorage.setItem(k,JSON.stringify(v))}
 function cur(i){return view==0?last[i]:ls(lists[view])[i]}
 function esc(s){return (s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function err(m){document.getElementById('res').innerHTML='<div class="err">⚠️ '+esc(m)+'</div>'}
-function tab(x){view=x;draw();for(var i=0;i<3;i++)document.getElementById('tb'+i).className=i==x?'on':''}
+function hist(){var h=ls('hist'),el=document.getElementById('hist');
+el.innerHTML=h.slice(0,8).map(function(q,i){return '<button class="chip" onclick="again('+i+')">🕘 '+esc(q)+'</button>'}).join('')}
+function again(i){document.getElementById('q').value=ls('hist')[i];go()}
+function tab(x){view=x;nowIdx=-1;draw();for(var i=0;i<3;i++)document.getElementById('tb'+i).className=i==x?'on':''}
 function draw(){var r=document.getElementById('res');
 var d=view==0?last:ls(lists[view]);
 if(!d.length){r.innerHTML='<p style="text-align:center;color:#8a76a8;padding:30px">'+(view==0?'কিছু সার্চ করুন...':'তালিকা খালি')+'</p>';return}
 r.innerHTML=d.map(function(x,i){
 var f=ls('fav').some(function(y){return y.link==x.link});
-return '<div class="item"><img src="'+esc(x.img)+'" onerror="this.style.display=\'none\'"><div class="meta"><div class="t">'+esc(x.t)+'</div><div class="a">'+esc(x.a)+'</div><div><button class="small" onclick="play('+i+')">▶ Play</button> <button class="small" onclick="fav('+i+')">'+(f?'💔':'❤️')+'</button> '+(view==0?'<button class="small" onclick="addB('+i+')">🇧🇩+</button>':'<button class="small" onclick="del('+i+')">🗑</button>')+'</div></div></div>'}).join('')}
+var onp=(view==0&&nowIdx==i)||(view>0&&nowIdx==i);
+return '<div class="item"'+(onp?' style="outline:2px solid #ff2d78"':'')+'><img src="'+esc(x.img)+'" onerror="this.style.display=\'none\'"><div class="meta"><div class="t">'+esc(x.t)+'</div><div class="a">'+esc(x.a)+'</div><div><button class="small" onclick="play('+i+')">▶ Play</button> <button class="small" onclick="fav('+i+')">'+(f?'💔':'❤️')+'</button> <button class="small" onclick="shr('+i+')">📤</button> '+(view==0?'<button class="small" onclick="addB('+i+')">🇧🇩+</button>':'<button class="small" onclick="del('+i+')">🗑</button>')+'</div></div></div>'}).join('')}
 function go(){var q=document.getElementById('q').value.trim();if(!q)return;
+var h=ls('hist').filter(function(x){return x!=q});h.unshift(q);sv('hist',h.slice(0,10));
 err('⏳ সার্চ হচ্ছে...');
 fetch('https://itunes.apple.com/search?term='+encodeURIComponent(q)+'&media=music&limit=25')
 .then(function(r){return r.json()})
 .then(function(d){
 last=(d.results||[]).map(function(x){return{t:x.trackName,a:x.artistName,img:(x.artworkUrl100||'').replace('100x100','200x200'),prev:x.previewUrl,link:x.trackViewUrl}});
 if(!last.length){err('রেজাল্ট পাওয়া যায়নি। অন্য শব্দে খুঁজুন।');return}
-view=0;tab(0);draw()})
-.catch(function(e){err('সার্চ error: '+e.message+' | ইন্টারনেট আছে কিনা ও অ্যাপ আপডেট করা আছে কিনা দেখুন')})}
-function play(i){var s=cur(i);aud.src=s.prev||'';aud.play()}
+view=0;tab(0);draw();hist()})
+.catch(function(e){err('সার্চ error: '+e.message)})}
+function play(i){nowIdx=i;var s=cur(i);aud.src=s.prev||'';document.getElementById('nowp').textContent='🎶 '+s.t+' — '+s.a;aud.play();draw()}
+function nextSong(){if(nowIdx<0)return;var n=nowIdx+1;if(n>=last.length){n=0}play(n)}
+aud.addEventListener('ended',function(){nextSong()});
+function shr(i){var s=cur(i);if(navigator.share){navigator.share({title:s.t,text:s.t+' — '+s.a,url:s.link})}else{prompt('লিংক কপি:',s.link)}}
 function fav(i){var s=cur(i),f=ls('fav');if(f.some(function(y){return y.link==s.link})){f=f.filter(function(y){return y.link!=s.link})}else{f.unshift(s)}sv('fav',f);draw()}
 function addB(i){var s=cur(i),b=ls('bng');if(!b.some(function(y){return y.t==s.t&&y.a==s.a})){b.unshift(s);sv('bng',b)}}
 function del(i){var l=ls(lists[view]);l.splice(i,1);sv(lists[view],l);draw()}
-draw();
+draw();hist();
 </script></body></html>
