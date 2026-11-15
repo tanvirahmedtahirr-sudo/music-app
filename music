@@ -1,0 +1,4 @@
+#!/data/data/com.termux/files/usr/bin/bash
+pkill -f app.py 2>/dev/null
+cd ~
+exec python app.py

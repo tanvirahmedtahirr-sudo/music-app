@@ -1,0 +1,55 @@
+<!doctype html><html lang="bn"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Music App</title><style>
+body{font-family:sans-serif;margin:0;background:#1a1025;color:#fff;padding-bottom:70px}
+header{background:linear-gradient(135deg,#ff2d78,#7b2dff);padding:18px;text-align:center;font-weight:bold;font-size:20px}
+.bar{display:flex;gap:8px;padding:12px}
+input{flex:1;padding:12px;border-radius:10px;border:none;background:#2a1b3d;color:#fff;font-size:16px}
+button{padding:12px 16px;border:none;border-radius:10px;background:#ff2d78;color:#fff;font-weight:bold}
+.tabs{display:flex;gap:8px;padding:0 12px}
+.tabs button{background:#2a1b3d;flex:1}
+.tabs button.on{background:#7b2dff}
+.item{display:flex;align-items:center;gap:10px;background:#241639;margin:8px 12px;padding:10px;border-radius:12px}
+.item img{width:52px;height:52px;border-radius:8px;flex-shrink:0}
+.meta{flex:1;min-width:0}
+.t{font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.a{color:#b9a6d9;font-size:13px}
+.small{padding:8px 10px;background:#3d2450;border-radius:8px;margin-top:6px}
+.err{margin:16px;padding:14px;border-radius:10px;background:#4d1226;color:#ffb3c1;font-size:13px;word-break:break-all}
+audio{width:100%;position:fixed;bottom:0;left:0}
+</style></head><body>
+<header>🎵 My Music App <span style="font-size:11px">v3</span></header>
+<div class="bar"><input id="q" placeholder="গান সার্চ করুন..." onkeydown="if(event.key=='Enter')go()">
+<button onclick="go()">Search</button></div>
+<div class="tabs"><button id="tb0" class="on" onclick="tab(0)">🔍 Search</button><button id="tb1" onclick="tab(1)">❤️ Fav</button><button id="tb2" onclick="tab(2)">🇧🇩 Bangla</button></div>
+<div id="res"></div>
+<audio id="aud" controls></audio>
+<script>
+var view=0,last=[],lists=['s','fav','bng'],aud=document.getElementById('aud');
+function ls(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return[]}}
+function sv(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function cur(i){return view==0?last[i]:ls(lists[view])[i]}
+function esc(s){return (s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function err(m){document.getElementById('res').innerHTML='<div class="err">⚠️ '+esc(m)+'</div>'}
+function tab(x){view=x;draw();for(var i=0;i<3;i++)document.getElementById('tb'+i).className=i==x?'on':''}
+function draw(){var r=document.getElementById('res');
+var d=view==0?last:ls(lists[view]);
+if(!d.length){r.innerHTML='<p style="text-align:center;color:#8a76a8;padding:30px">'+(view==0?'কিছু সার্চ করুন...':'তালিকা খালি')+'</p>';return}
+r.innerHTML=d.map(function(x,i){
+var f=ls('fav').some(function(y){return y.link==x.link});
+return '<div class="item"><img src="'+esc(x.img)+'" onerror="this.style.display=\'none\'"><div class="meta"><div class="t">'+esc(x.t)+'</div><div class="a">'+esc(x.a)+'</div><div><button class="small" onclick="play('+i+')">▶ Play</button> <button class="small" onclick="fav('+i+')">'+(f?'💔':'❤️')+'</button> '+(view==0?'<button class="small" onclick="addB('+i+')">🇧🇩+</button>':'<button class="small" onclick="del('+i+')">🗑</button>')+'</div></div></div>'}).join('')}
+function go(){var q=document.getElementById('q').value.trim();if(!q)return;
+err('⏳ সার্চ হচ্ছে...');
+fetch('https://itunes.apple.com/search?term='+encodeURIComponent(q)+'&media=music&limit=25')
+.then(function(r){return r.json()})
+.then(function(d){
+last=(d.results||[]).map(function(x){return{t:x.trackName,a:x.artistName,img:(x.artworkUrl100||'').replace('100x100','200x200'),prev:x.previewUrl,link:x.trackViewUrl}});
+if(!last.length){err('রেজাল্ট পাওয়া যায়নি। অন্য শব্দে খুঁজুন।');return}
+view=0;tab(0);draw()})
+.catch(function(e){err('সার্চ error: '+e.message+' | ইন্টারনেট আছে কিনা ও অ্যাপ আপডেট করা আছে কিনা দেখুন')})}
+function play(i){var s=cur(i);aud.src=s.prev||'';aud.play()}
+function fav(i){var s=cur(i),f=ls('fav');if(f.some(function(y){return y.link==s.link})){f=f.filter(function(y){return y.link!=s.link})}else{f.unshift(s)}sv('fav',f);draw()}
+function addB(i){var s=cur(i),b=ls('bng');if(!b.some(function(y){return y.t==s.t&&y.a==s.a})){b.unshift(s);sv('bng',b)}}
+function del(i){var l=ls(lists[view]);l.splice(i,1);sv(lists[view],l);draw()}
+draw();
+</script></body></html>

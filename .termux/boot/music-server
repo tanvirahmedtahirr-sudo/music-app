@@ -1,0 +1,4 @@
+#!/data/data/com.termux/files/usr/bin/bash
+termux-wake-lock
+sleep 10
+exec ~/music > /dev/null 2>&1

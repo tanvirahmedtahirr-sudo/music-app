@@ -1,0 +1,6 @@
+.ssh/
+.cache/
+storage/
+bash_history
+.bash_history
+.gitconfig
