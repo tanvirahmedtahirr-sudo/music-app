@@ -1,10 +1,10 @@
 <!doctype html><html lang="bn"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>My Music App</title><style>
-body{font-family:sans-serif;margin:0;background:#1a1025;color:#fff;padding-bottom:120px;transition:background .3s}
+body{font-family:sans-serif;margin:0;background:#1a1025;color:#fff;padding-bottom:130px}
 body.light{background:#f5f0fb;color:#2a1b3d}
 body.light .t,body.light .s-title{color:#2a1b3d}
-header{background:linear-gradient(135deg,#ff2d78,#7b2dff);padding:18px;text-align:center;font-weight:bold;font-size:20px}
+header{background:linear-gradient(135deg,#ff2d78,#7b2dff);padding:16px;text-align:center;font-weight:bold;font-size:19px}
 .bar{display:flex;gap:8px;padding:12px}
 input{flex:1;padding:12px;border-radius:10px;border:none;background:#2a1b3d;color:#fff;font-size:16px}
 body.light input{background:#fff;color:#2a1b3d;border:1px solid #ddd}
@@ -12,7 +12,11 @@ button{padding:12px 16px;border:none;border-radius:10px;background:#ff2d78;color
 .tabs{display:flex;gap:8px;padding:0 12px}
 .tabs button{background:#2a1b3d;flex:1}
 body.light .tabs button{background:#e5dbf5;color:#2a1b3d}
-.tabs button.on{background:#7b2dff;color:#fff}
+.tabs button.on{background:#7b2dff}
+.cats{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px}
+.chip{padding:6px 12px;border-radius:20px;background:#2a1b3d;font-size:12px;border:none;color:#fff}
+body.light .chip{background:#e5dbf5;color:#2a1b3d}
+.chip.on{background:#7b2dff}
 .item{display:flex;align-items:center;gap:10px;background:#241639;margin:8px 12px;padding:10px;border-radius:12px}
 body.light .item{background:#fff}
 .item img{width:52px;height:52px;border-radius:8px;flex-shrink:0}
@@ -23,29 +27,30 @@ body.light .t{color:#2a1b3d}
 body.light .a{color:#6a5a8a}
 .small{padding:8px 10px;background:#3d2450;border-radius:8px;margin-top:6px;color:#fff}
 body.light .small{background:#efe6fa;color:#2a1b3d}
-.hist{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 4px}
-.chip{padding:6px 12px;border-radius:20px;background:#2a1b3d;font-size:12px;border:none}
-body.light .chip{background:#e5dbf5;color:#2a1b3d}
-.chip.on{background:#7b2dff;color:#fff}
+.arts{color:#7b2dff;text-decoration:underline;cursor:pointer}
+.lyr{margin:16px;padding:14px;border-radius:10px;background:#241639;white-space:pre-wrap;font-size:14px;max-height:300px;overflow:auto}
+body.light .lyr{background:#fff;color:#2a1b3d}
 .err{margin:16px;padding:14px;border-radius:10px;background:#4d1226;color:#ffb3c1;font-size:13px;word-break:break-all}
-.hrow{display:flex;gap:10px;padding:0 12px 8px}
-.hrow button{flex:1;padding:10px;font-size:13px;background:#2a1b3d}
-body.light .hrow button{background:#e5dbf5;color:#2a1b3d}
-audio{width:100%;position:fixed;bottom:52px;left:0}
-.np{position:fixed;bottom:0;left:0;right:0;background:#0f0819;padding:8px 14px;display:flex;align-items:center;gap:10px;border-top:1px solid #2a1b3d}
+.audio{width:100%;position:fixed;bottom:52px;left:0}
+.np{position:fixed;bottom:0;left:0;right:0;background:#0f0819;padding:8px 14px;display:flex;align-items:center;gap:8px;border-top:1px solid #2a1b3d}
 .np .s-title{flex:1;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
-.np button{padding:8px 14px;font-size:16px;background:#ff2d78}
+.np button{padding:8px 12px;font-size:15px;background:#ff2d78}
+.sel{position:fixed;bottom:110px;left:12px;background:#2a1b3d;border-radius:12px;padding:10px;display:none;z-index:9}
+.sel button{display:block;width:100%;margin:4px 0;background:#3d2450;padding:8px}
 </style></head><body>
-<header>🎵 My Music App <span style="font-size:11px">v4</span> <span style="float:right;cursor:pointer" onclick="theme()" id="th">🌙</span></header>
-<div class="bar"><input id="q" placeholder="গান সার্চ করুন..." onkeydown="if(event.key=='Enter')go()">
+<header>🎵 My Music App <span style="font-size:11px">v5</span> <span style="float:right;cursor:pointer" onclick="theme()" id="th">🌙</span></header>
+<div class="bar"><input id="q" placeholder="গান/গায়ক সার্চ করুন..." onkeydown="if(event.key=='Enter')go()">
 <button onclick="go()">Search</button></div>
-<div class="hist" id="hist"></div>
-<div class="tabs"><button id="tb0" class="on" onclick="tab(0)">🔍 Search</button><button id="tb1" onclick="tab(1)">❤️ Fav</button><button id="tb2" onclick="tab(2)">🇧🇩 Bangla</button></div>
+<div class="cats" id="cats"></div>
+<div class="tabs"><button id="tb0" class="on" onclick="tab(0)">🔍 Search</button><button id="tb1" onclick="tab(1)">❤️ Fav</button><button id="tb2" onclick="tab(2)">🇧🇩 Bangla</button><button id="tb3" onclick="tab(3)">🕐 Recent</button></div>
 <div id="res"></div>
-<audio id="aud" controls></audio>
-<div class="np"><span class="s-title" id="nowp">কিছু বাজছে না</span><button onclick="nextSong()">⏭</button></div>
+<div id="lyrbox"></div>
+<div class="sel" id="sleepbox"><button onclick="slp(0)">Sleep off</button><button onclick="slp(15)">১৫ মিনিট</button><button onclick="slp(30)">৩০ মিনিট</button><button onclick="slp(60)">৬০ মিনিট</button></div>
+<audio class="audio" id="aud" controls></audio>
+<div class="np"><span class="s-title" id="nowp">কিছু বাজছে না</span><button onclick="shuffle()">🔀</button><button onclick="nextSong()">⏭</button><button onclick="toggleslp()">⏰</button></div>
 <script>
-var view=0,last=[],lists=['s','fav','bng'],aud=document.getElementById('aud'),nowIdx=-1;
+var view=0,last=[],lists=['s','fav','bng','rec'],aud=document.getElementById('aud'),nowIdx=-1,sleepT=null;
+var cats=[['Bangla Hits','bangla hits'],['Bollywood','bollywood hits'],['English Top','top hits'],['Lofi','lofi beats'],['Old Classics','oldies classics'],['Punjabi','punjabi hits'],['Islamic','nasheed'],['Hip Hop','hip hop']];
 var light=localStorage.getItem('theme')=='l';
 function theme(){light=!light;localStorage.setItem('theme',light?'l':'d');apply()}
 function apply(){document.body.className=light?'light':'';document.getElementById('th').textContent=light?'☀️':'🌙'}
@@ -55,33 +60,45 @@ function sv(k,v){localStorage.setItem(k,JSON.stringify(v))}
 function cur(i){return view==0?last[i]:ls(lists[view])[i]}
 function esc(s){return (s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function err(m){document.getElementById('res').innerHTML='<div class="err">⚠️ '+esc(m)+'</div>'}
-function hist(){var h=ls('hist'),el=document.getElementById('hist');
-el.innerHTML=h.slice(0,8).map(function(q,i){return '<button class="chip" onclick="again('+i+')">🕘 '+esc(q)+'</button>'}).join('')}
-function again(i){document.getElementById('q').value=ls('hist')[i];go()}
-function tab(x){view=x;nowIdx=-1;draw();for(var i=0;i<3;i++)document.getElementById('tb'+i).className=i==x?'on':''}
+function catBar(){document.getElementById('cats').innerHTML=cats.map(function(c,i){return '<button class="chip" onclick="loadCat('+i+')">'+c[0]+'</button>'}).join('')}
+function loadCat(i){document.getElementById('q').value=cats[i][1];go()}
+function tab(x){view=x;nowIdx=-1;document.getElementById('lyrbox').innerHTML='';draw();for(var i=0;i<4;i++)document.getElementById('tb'+i).className=i==x?'on':''}
 function draw(){var r=document.getElementById('res');
 var d=view==0?last:ls(lists[view]);
-if(!d.length){r.innerHTML='<p style="text-align:center;color:#8a76a8;padding:30px">'+(view==0?'কিছু সার্চ করুন...':'তালিকা খালি')+'</p>';return}
+if(!d.length){r.innerHTML='<p style="text-align:center;color:#8a76a8;padding:30px">'+(view==0?'উপরের ক্যাটাগরি বা সার্চ ব্যবহার করুন...':'তালিকা খালি')+'</p>';return}
 r.innerHTML=d.map(function(x,i){
 var f=ls('fav').some(function(y){return y.link==x.link});
-var onp=(view==0&&nowIdx==i)||(view>0&&nowIdx==i);
-return '<div class="item"'+(onp?' style="outline:2px solid #ff2d78"':'')+'><img src="'+esc(x.img)+'" onerror="this.style.display=\'none\'"><div class="meta"><div class="t">'+esc(x.t)+'</div><div class="a">'+esc(x.a)+'</div><div><button class="small" onclick="play('+i+')">▶ Play</button> <button class="small" onclick="fav('+i+')">'+(f?'💔':'❤️')+'</button> <button class="small" onclick="shr('+i+')">📤</button> '+(view==0?'<button class="small" onclick="addB('+i+')">🇧🇩+</button>':'<button class="small" onclick="del('+i+')">🗑</button>')+'</div></div></div>'}).join('')}
+return '<div class="item"><img src="'+esc(x.img)+'" onerror="this.style.display=\'none\'"><div class="meta"><div class="t">'+esc(x.t)+'</div><div class="a"><span class="arts" onclick="artist(\''+esc(x.aid)+'\',\''+esc(x.a).replace(/'/g,"\\'")+'\')">'+esc(x.a)+'</span></div><div><button class="small" onclick="play('+i+')">▶</button> <button class="small" onclick="fav('+i+')">'+(f?'💔':'❤️')+'</button> <button class="small" onclick="shr('+i+')">📤</button> '+(view==0?'<button class="small" onclick="addB('+i+')">🇧🇩+</button>':'<button class="small" onclick="del('+i+')">🗑</button>')+'</div></div></div>'}).join('')}
 function go(){var q=document.getElementById('q').value.trim();if(!q)return;
-var h=ls('hist').filter(function(x){return x!=q});h.unshift(q);sv('hist',h.slice(0,10));
-err('⏳ সার্চ হচ্ছে...');
-fetch('https://itunes.apple.com/search?term='+encodeURIComponent(q)+'&media=music&limit=25')
-.then(function(r){return r.json()})
-.then(function(d){
-last=(d.results||[]).map(function(x){return{t:x.trackName,a:x.artistName,img:(x.artworkUrl100||'').replace('100x100','200x200'),prev:x.previewUrl,link:x.trackViewUrl}});
-if(!last.length){err('রেজাল্ট পাওয়া যায়নি। অন্য শব্দে খুঁজুন।');return}
-view=0;tab(0);draw();hist()})
-.catch(function(e){err('সার্চ error: '+e.message)})}
-function play(i){nowIdx=i;var s=cur(i);aud.src=s.prev||'';document.getElementById('nowp').textContent='🎶 '+s.t+' — '+s.a;aud.play();draw()}
-function nextSong(){if(nowIdx<0)return;var n=nowIdx+1;if(n>=last.length){n=0}play(n)}
+doFetch('https://itunes.apple.com/search?term='+encodeURIComponent(q)+'&media=music&limit=25',q)}
+function doFetch(url,q){
+err('⏳ লোড হচ্ছে...');
+fetch(url).then(function(r){return r.json()}).then(function(d){
+last=(d.results||[]).filter(function(x){return x.trackName}).map(function(x){return{t:x.trackName,a:x.artistName,aid:x.artistId,img:(x.artworkUrl100||'').replace('100x100','200x200'),prev:x.previewUrl,link:x.trackViewUrl}});
+if(!last.length){err('রেজাল্ট পাওয়া যায়নি। অন্য শব্দে চেষ্টা করুন।');return}
+view=0;tab(0);draw()}).catch(function(e){err('সার্চ error: '+e.message)})}
+function artist(id,name){doFetch('https://itunes.apple.com/lookup?id='+id+'&entity=song&limit=50','')}
+function lyrics(){var s=cur(nowIdx);if(!s){return}
+document.getElementById('lyrbox').innerHTML='<div class="lyr">⏳ লিরিক্স আনা হচ্ছে...</div>';
+fetch('https://api.lyrics.ovh/v1/'+encodeURIComponent(s.a)+'/'+encodeURIComponent(s.t))
+.then(function(r){return r.json()}).then(function(d){
+document.querySelector('.lyr').textContent=d.lyrics||'লিরিক্স পাওয়া যায়নি'})
+.catch(function(){document.querySelector('.lyr').textContent='লিরিক্স পাওয়া যায়নি (সার্ভার ব্যস্ত)'})}
+function play(i){nowIdx=i;var s=cur(i);aud.src=s.prev||'';
+document.getElementById('nowp').textContent='🎶 '+s.t+' — '+s.a;
+document.getElementById('lyrbox').innerHTML='<div style="text-align:center;padding:6px"><button class="small" onclick="lyrics()">📝 Lyrics</button></div>';
+if(view==0){var rc=ls('rec').filter(function(y){return y.link!=s.link});rc.unshift(s);sv('rec',rc.slice(0,30))}
+aud.play();draw()}
+function nextSong(){if(nowIdx<0)return;play(nowIdx+1>=last.length?0:nowIdx+1)}
+function shuffle(){if(!last.length)return;nowIdx=Math.floor(Math.random()*last.length);play(nowIdx)}
+function toggleslp(){var b=document.getElementById('sleepbox');b.style.display=b.style.display=='block'?'none':'block'}
+function slp(m){document.getElementById('sleepbox').style.display='none';
+if(sleepT){clearTimeout(sleepT);sleepT=null}
+if(m>0){sleepT=setTimeout(function(){aud.pause()},m*60*1000);document.getElementById('nowp').textContent='⏰ Sleep: '+m+' মিনিট পর বন্ধ'}}
 aud.addEventListener('ended',function(){nextSong()});
 function shr(i){var s=cur(i);if(navigator.share){navigator.share({title:s.t,text:s.t+' — '+s.a,url:s.link})}else{prompt('লিংক কপি:',s.link)}}
 function fav(i){var s=cur(i),f=ls('fav');if(f.some(function(y){return y.link==s.link})){f=f.filter(function(y){return y.link!=s.link})}else{f.unshift(s)}sv('fav',f);draw()}
 function addB(i){var s=cur(i),b=ls('bng');if(!b.some(function(y){return y.t==s.t&&y.a==s.a})){b.unshift(s);sv('bng',b)}}
 function del(i){var l=ls(lists[view]);l.splice(i,1);sv(lists[view],l);draw()}
-draw();hist();
+catBar();draw();
 </script></body></html>
